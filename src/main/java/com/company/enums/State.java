@@ -1,0 +1,44 @@
+package com.company.enums;
+
+import com.company.entity.SearchHelper;
+
+public enum State {
+    GET_TITLE,
+    GET_PHONE_NUMBER,
+    GET_SALE_TYPE_ID,
+    GET_REGION_ID,
+    GET_DISTRICT_ID,
+    PRICE,
+    PRICE_TYPE_ID,
+
+    ROOM_COUNT,
+    AREA,
+    FLOOR,
+    MAX_FLOOR,
+    MATERIAL_ID,
+    STATUS_ID,
+    GET_PHOTO,
+    COMPLETED,
+    GET_HOME_TYPE_ID,
+    INFO,
+    CONFIRMATION_STATE,
+
+
+    // javohir
+
+    SEARCH_BY_DISTRICT,
+    SEARCH_GET_SALE_TYPE_ID,
+    SEARCH_GET_REGION_ID,
+    SEARCH_GET_DISTRICT_ID,
+    SEARCH_GET_MENU,
+    S_ENTER_COUNT_ROOM,
+    SEARCH_REGION,
+    SEARCH_DISTRICT,
+    SEARCH_ALL_FIELDS,
+    GET_PRICE,
+    SEARCH_REGION_BY_PRICE,
+    SEARCH_DISTRICT_BY_PRICE,
+    S_DATE,
+
+
+}

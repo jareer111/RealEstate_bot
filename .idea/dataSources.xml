@@ -1,25 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="d9j8ehc4cl34to@ec2-54-229-217-195.eu-west-1.compute.amazonaws.com" uuid="5bb6e3d8-4648-4486-9442-7dad09e5522d">
+    <data-source source="LOCAL" name="estate_bot@localhost" uuid="851e4897-269f-4858-8966-036887810a8e">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://ec2-54-229-217-195.eu-west-1.compute.amazonaws.com:5432/d9j8ehc4cl34to</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="UyBozorDB@localhost" uuid="c3ef80d2-56e4-415b-b393-2c4f5ed7d71b">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://ec2-54-229-217-195.eu-west-1.compute.amazonaws.com:5432/d9j8ehc4cl34to</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="uyBozorLocal@localhost" uuid="48f33181-b28f-473a-9465-bdddc46f4f24">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/uyBozor</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/estate_bot</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

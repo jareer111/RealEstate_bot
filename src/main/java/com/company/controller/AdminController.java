@@ -25,8 +25,6 @@ public class AdminController {
 
 
     static WorkWithDbFunctions object = new DbFunctionsImpl();
-
-    static AdminStatus status = AdminStatus.NOTHING;
     static String blockingChatId = null;
 
     public static void handleMessage(User user, Message message) {
@@ -34,7 +32,6 @@ public class AdminController {
         String s = String.valueOf(message.getChatId());
 
         if (adminStatusMap.get(s).equals(AdminStatus.AD_SEND_1)) {
-//        if (status.equals(AdminStatus.AD_SEND_1)) {
             for (Users oneUser : object.getAllUsers()) {
                 if (!oneUser.isAdmin()) {
                     ForwardMessage forwardMessage = new ForwardMessage(oneUser.getChatId(),
@@ -44,8 +41,7 @@ public class AdminController {
             }
 
             adminStatusMap.put(s, AdminStatus.NOTHING);
-//            System.out.println(adminStatusMap);
-//            status = AdminStatus.NOTHING;
+
         } else if (message.hasText()) {
             String text = message.getText();
             handleText(user, message, text);
@@ -59,8 +55,6 @@ public class AdminController {
 
 
     private static void handleContact(User user, Message message, Contact contact) {
-
-
         String chatId = String.valueOf(message.getChatId());
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
@@ -74,32 +68,20 @@ public class AdminController {
 
     private static void handleText(User user, Message message, String text) {
         String chatId = String.valueOf(message.getChatId());
-        SendDocument sendDocument = new SendDocument();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
 
-
         if (text.equals("/start")) {
             adminStatusMap.put(chatId, AdminStatus.NOTHING);
-//            if(adminStatusMap.get(chatId).equals())
-//            System.out.println(adminStatusMap);
+
             sendMessage.setText("Hello " + user.getFirstName());
 
             sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
 
-        } else if (text.equalsIgnoreCase(KeyboardButtonConstants.USERS_LIST)) {
-            WorkWithFiles.getUserFile();
-            File file = new File(BASE_FOLDER, "usersList.xlsx");
-            sendDocument.setChatId(chatId);
-            sendDocument.setDocument(new InputFile(file));
-            ComponentContainer.MY_BOT.sendMsg(sendMessage);
-//            file.delete();
-
         } else if (text.equalsIgnoreCase(KeyboardButtonConstants.SET_ADMIN)) {
-            sendMessage.setText("Foydalanuvchining chat idsini kiriting: ");
+            sendMessage.setText("Adminning chat idsini kiriting: ");
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
-//            status = AdminStatus.SETTING_ADMIN;
             adminStatusMap.put(chatId, AdminStatus.SETTING_ADMIN);
 
         } else if (text.equalsIgnoreCase(KeyboardButtonConstants.CONFIRM_ADD_FROM_USER)) {
@@ -109,29 +91,25 @@ public class AdminController {
             sendMessage.setText("Foydalanuvchining chat idsini kiriting: ");
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
             adminStatusMap.put(chatId, AdminStatus.BLOCKING_P1);
-//            status = AdminStatus.BLOCKING_P1;
-//            System.out.println(adminStatusMap);
         } else if (ComponentContainer.adminAnswerMap.containsKey(chatId)) {
 
             MessageData messageData = ComponentContainer.adminAnswerMap.get(chatId);
 
             Integer messageId = messageData.getMessage().getMessageId();
             String messageText = messageData.getMessage().getText();
-            Integer customerMessageId = messageData.getMessageId();
             String customerChatId = messageData.getCustomerChatId();
 
 
             sendMessage.setChatId(customerChatId);
-            sendMessage.setText(text);
+            sendMessage.setText("Adminning sizga javobi: \uD83D\uDCE8 \n "+text);
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
 
             EditMessageText editMessageText = new EditMessageText();
             editMessageText.setChatId(chatId);
-            String str = "ChatId : " + chatId +
+            String str = "AdminId : " + chatId +
                     "\nFull name: " + messageData.getMessage().getForwardSenderName() +
                     "\nText: " + messageText +
-                    "\nUshbu xabarga javob berildi" +
-                    "\n---------------------------" +
+                    "\nUshbu xabarga javob berildi \n---------------------------" +
                     "\nJavob bergan Admin: " + "@" + user.getUserName() +
                     "\n Javob bergan Admin ismi: " + user.getFirstName() +
                     "\nJavob Matni: " + text;
@@ -145,19 +123,31 @@ public class AdminController {
 
         }
         else if (adminStatusMap.get(chatId).equals(AdminStatus.SETTING_ADMIN)) {
-            boolean isAdmin = object.setOrRemoveAdmin(text,true);
-            if (isAdmin) {
+            int isAdmin = object.setOrRemoveAdmin(text);
+            SendMessage userMessage = new SendMessage();
+            userMessage.setChatId(text);
+            if (isAdmin==1) {
                 sendMessage.setText("Yangi Admin qo'shildi");
-                ComponentContainer.MY_BOT.sendMsg(sendMessage);
-                sendMessage.setChatId(text);
-                sendMessage.setText("Siz " + user.getFirstName() + "tomonidan admin qilib saylandingiz");
+                userMessage.setText("Siz " + user.getFirstName() + " tomonidan admin qilib saylandingiz");
+                userMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
-            } else {
-                sendMessage.setText("Xatolik yuz berdi" +
-                        "\n Xatolik sabab bo'lishiga olib keluvchi sabablar" +
-                        "\n 1.Kiritilgan chatId xato" +
-                        "\n 2.Bunday chatId egasi botdan ro'yxatdan o'tmagan");
+                ComponentContainer.MY_BOT.sendMsg(userMessage);
+            }else if (isAdmin==2) {
+                sendMessage.setText("Adminlik huquqi olib tashlandi");
+                userMessage.setText("Sizning  adminlik huquqingiz  " + user.getFirstName() + " tomonidan  olib tashlandi ");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
+                userMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+                ComponentContainer.MY_BOT.sendMsg(userMessage);
+            }
+            else {
+                sendMessage.setText("""
+                         Xatolik yuz berdi
+                         Xatolik sabab bo'lishiga olib keluvchi sabablar
+                         1.Kiritilgan chatId xato
+                         2.Bunday chatId egasi botdan ro'yxatdan o'tmagan
+                         """);
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
             }
             adminStatusMap.put(chatId, AdminStatus.NOTHING);

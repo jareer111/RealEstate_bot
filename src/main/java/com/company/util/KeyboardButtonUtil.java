@@ -14,36 +14,30 @@ import java.util.List;
 public class KeyboardButtonUtil {
 
 
-
     public static ReplyKeyboard getAdminMenu() {
         List<KeyboardRow> rowList = getRowList(
                 getRow(
-                        getButton(KeyboardButtonConstants.USERS_LIST)
-                ),
-                getRow(
-                        getButton(KeyboardButtonConstants.BLOCK_USER)
-                ),
-                getRow(
-                        getButton(KeyboardButtonConstants.WORK_WITH_ADS),
+                        getButton(KeyboardButtonConstants.SEND_AD_TO_ALL_USERS),
                         getButton(KeyboardButtonConstants.CONFIRM_ADD_FROM_USER)
                 ),
                 getRow(
                         getButton(KeyboardButtonConstants.SET_ADMIN),
-                        getButton(KeyboardButtonConstants.SEND_AD_TO_ALL_USERS)
-                ));
+                        getButton(KeyboardButtonConstants.BLOCK_USER)
+                        ));
 
         return getMarkup(rowList);
     }
+
     public static ReplyKeyboard BlockedUserMenu() {
         List<KeyboardRow> rowList = getRowList(
                 getRow(
                         getButton(KeyboardButtonConstants.CONTACT_WITH_ADMIN)
                 )
         );
-
         return getMarkup(rowList);
 
     }
+
     public static ReplyKeyboard getUserMenu() {
         List<KeyboardRow> rowList = getRowList(
                 getRow(
@@ -54,7 +48,7 @@ public class KeyboardButtonUtil {
                         getButton(KeyboardButtonConstants.SEARCH),
                         getButton(KeyboardButtonConstants.CONTACT_WITH_ADMIN)
                 )
-                );
+        );
 
         return getMarkup(rowList);
     }

@@ -75,17 +75,43 @@ public class InlineKeyboardUtil {
         int adsID =adsId+100;
                 InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> general = new ArrayList<>();
+//        List<List<InlineKeyboardButton>> general2 = new ArrayList<>();
 
         InlineKeyboardButton button = new InlineKeyboardButton();
+        InlineKeyboardButton button1 = new InlineKeyboardButton();
+        InlineKeyboardButton button3 = new InlineKeyboardButton();
+        InlineKeyboardButton button4 = new InlineKeyboardButton();
         button.setCallbackData(InlineButtonConstants.CONFIRM_AD_CALL_BACK + "/" + adsId + "/" + userId + "/" + adsID);//+ "/" + chatId+"/"+messageId);
         button.setText(InlineButtonConstants.CONFIRM_AD);
-        InlineKeyboardButton button1 = new InlineKeyboardButton();
         button1.setCallbackData(InlineButtonConstants.REJECT_AD_CALL_BACK + "/" + adsId + "/" + userId + "/" + adsID);//+ "/" + chatId+"/"+messageId);
         button1.setText(InlineButtonConstants.REJECT_AD);
+        button3.setCallbackData(InlineButtonConstants.PREV_AD_CALL_BACK);
+        button3.setText(InlineButtonConstants.PREV_AD);
+        button4.setCallbackData(InlineButtonConstants.NEXT_AD_CALL_BACK);
+        button4.setText(InlineButtonConstants.NEXT_AD);
+        general.add(new ArrayList<>(List.of(button1, button)));
+        general.add(new ArrayList<>(List.of(button3, button4)));
+        markup.setKeyboard(general);
+//        markup.setKeyboard(general2);
+        return markup;
+
+    }
+
+
+    public static ReplyKeyboard nextOrPrev() {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> general = new ArrayList<>();
+
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        InlineKeyboardButton button1 = new InlineKeyboardButton();
+
+        button.setCallbackData(InlineButtonConstants.PREV_AD_CALL_BACK);
+        button.setText(InlineButtonConstants.PREV_AD);
+        button1.setCallbackData(InlineButtonConstants.NEXT_AD_CALL_BACK);
+        button1.setText(InlineButtonConstants.NEXT_AD);
         general.add(new ArrayList<>(List.of(button, button1)));
         markup.setKeyboard(general);
         return markup;
-
     }
 
 
@@ -408,20 +434,4 @@ public class InlineKeyboardUtil {
         return markup;
     }
 
-    public static ReplyKeyboard nextOrPrev() {
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> general = new ArrayList<>();
-
-        InlineKeyboardButton button = new InlineKeyboardButton();
-        InlineKeyboardButton button1 = new InlineKeyboardButton();
-
-        button.setCallbackData(InlineButtonConstants.PREV_AD_CALL_BACK);
-        button.setText(InlineButtonConstants.PREV_AD);
-        button1.setCallbackData(InlineButtonConstants.NEXT_AD_CALL_BACK);
-        button1.setText(InlineButtonConstants.NEXT_AD);
-        general.add(new ArrayList<>(List.of(button, button1)));
-        markup.setKeyboard(general);
-        return markup;
-
-    }
 }

@@ -14,12 +14,17 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class Main {
     public static void main(String[] args) {
         try {
-            ComponentContainer.adminList.removeAll(Collections.singleton("5570937198"));
+            DbFunctionsImpl dbFunctions = new DbFunctionsImpl();
+            List<Users> users = dbFunctions.getAllUsers();
+            users.stream().filter(Users::isAdmin).forEach(user -> ComponentContainer.adminList.add(user.getChatId()));
+            System.out.println("admins chat id" + ComponentContainer.adminList);
+
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
 
             RealEstateBot myBot = new RealEstateBot();

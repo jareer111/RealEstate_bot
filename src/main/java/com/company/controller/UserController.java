@@ -39,6 +39,10 @@ public class UserController {
 
     static Map<String, SearchHelper> userSearch = new HashMap<>();
     static Map<String, SearchPrice> searchPriceMap = new HashMap<>();
+    public final static String messageFloor = """
+            Uy nechanchi qavatda joylashgani va bino umumiy necha
+            qavatdan iborat ekanligini Misol: \"<b>2/4</b>\" ko'rinishda yuboring
+            """;
 
     public static void handleMessage(User user, Message message) {
 
@@ -55,8 +59,6 @@ public class UserController {
     }
 
     private static void handleContact(User user, Message message, Contact contact) {
-
-//        if (!contact.getPhoneNumber().matches("(\\+)?998\\d{9}")) return;
 
         String chatId = String.valueOf(message.getChatId());
         Users customer = object.getUserByChatId(chatId);
@@ -116,7 +118,7 @@ public class UserController {
             sendMessage.setText("Xabaringiz adminga jo'natildi! 😊");
             MY_BOT.sendMsg(sendMessage);
 
-            String str = "ChatId : " + customer.getChatId() + "\nFull name: " + customer.getFirstName() +
+            String str = "ChatId : " + customer.getChatId() + "\n Full name: " + customer.getFirstName() +
                     "\nPhone number: " + customer.getPhoneNumber() +
                     "\nText: " + text;
             SendMessage sendMessage1 = new SendMessage();
@@ -132,27 +134,7 @@ public class UserController {
             sendMessage.setText("Accountingiz Blocklangan");
             sendMessage.setReplyMarkup(KeyboardButtonUtil.BlockedUserMenu());
             MY_BOT.sendMsg(sendMessage);
-
-        }
-//        else if (text.equals("/start")) {
-//            if (customer.getId()==0) {
-//                sendMessage.setText("Assalomu alaykum!");
-//                sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
-//                MY_BOT.sendMsg(sendMessage);
-//            } else {
-//                if (customer.isBlocked()) {
-//                    sendMessage.setText("Accountingiz Blocklangan");
-//                    sendMessage.setReplyMarkup(KeyboardButtonUtil.BlockedUserMenu());
-//                    MY_BOT.sendMsg(sendMessage);
-//                }else{
-//                sendMessage.setText("Menu");
-//                sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
-//                MY_BOT.sendMsg(sendMessage);
-//                }
-//            }
-//
-//        }
-        else if (text.equals(KeyboardButtonConstants.MY_ADS)) {
+        } else if (text.equals(KeyboardButtonConstants.MY_ADS)) {
             int adsEmpty = object.isAdsEmpty(chatId);
             if (adsEmpty > 0) {
                 object.getMyAdsHistory(chatId);
@@ -164,7 +146,6 @@ public class UserController {
             sendMessage.setText("E'lon berish uchun quyidagi malumotlarni kiring  ✍️");
 
             userAds.put(chatId, new Ads());
-//            userStatus.put(chatId, State.GET_TITLE);
             MY_BOT.sendMsg(sendMessage);
 
             userStatus.put(chatId, State.GET_HOME_TYPE_ID);
@@ -239,56 +220,9 @@ public class UserController {
                 sendMessage.setText("Xonalar soni xato kiritildi. Qayta urinib ko'ring.");
                 MY_BOT.sendMsg(sendMessage);
             }
-        }
-//        else if (text.equals(KeyboardButtonConstants.MY_ADS)) {
-//            int adsEmpty = object.isAdsEmpty(chatId);
-//            if (adsEmpty > 0) {
-//                object.getMyAdsHistory(chatId);
-//            } else {
-//                sendMessage.setText("Sizda hali e'lonlar mavjud emas");
-//                MY_BOT.sendMsg(sendMessage);
-//            }
-//        }
-//        else if (text.equals(KeyboardButtonConstants.CONTACT_WITH_ADMIN)) {
-//
-//            customerMap.put(chatId, true);
-//            sendMessage.setChatId(chatId);
-//            sendMessage.setText("Xabaringizni kiriting \uD83D\uDCAC ");
-//            MY_BOT.sendMsg(sendMessage);
-//        }
-//        else if (customerMap.containsKey(chatId)) {
-//
-//            customerMap.remove(chatId);
-//
-//            sendMessage.setText("Xabaringiz adminga jo'natildi😊!");
-//            MY_BOT.sendMsg(sendMessage);
-//
-//            String str = "ChatId : " + customer.getChatId() + "\nFull name: " + customer.getFirstName() +
-//                    "\nPhone number: " + customer.getPhoneNumber() +
-//                    "\nText: " + text;
-//            SendMessage sendMessage1 = new SendMessage();
-//            for (String adminChatId : object.getAdminsChatIds()) {
-//
-//                sendMessage1.setText(str);
-//                sendMessage1.setChatId(adminChatId);
-//                sendMessage1.setReplyMarkup(InlineKeyboardUtil.getConnectMarkup(chatId, message.getMessageId()));
-//                MY_BOT.sendMsg(sendMessage1);
-//                break;
-//            }
-//        }
-        else {
+        } else {
             State state = userStatus.get(chatId);
             Ads ads = userAds.get(chatId);
-//            if (state.equals(State.GET_TITLE)) {
-//
-//                ads.setTitle(text);
-//                userStatus.put(chatId, State.GET_HOME_TYPE_ID);
-//
-//                sendMessage.setText("Bino turini tanlang: ");
-//                sendMessage.setReplyMarkup(InlineKeyboardUtil.getHomeTypes());
-//                MY_BOT.sendMsg(sendMessage);
-//
-//            }
             if (state.equals(State.GET_PHONE_NUMBER)) {
                 if (isValidNumber(text)) {
                     ads.setPhoneNumber(text);
@@ -338,8 +272,7 @@ public class UserController {
                     parameter.setArea(area);
 
                     if (ads.getHomeTypeId() == 1) {
-                        sendMessage.setText("Uy nechanchi qavatda joylashgani va bino umumiy necha" +
-                                " qavatdan iborat ekanligini Misol: \"<b>2/4</b>\" ko'rinishda yuboring");
+                        sendMessage.setText(messageFloor);
                         sendMessage.setParseMode(ParseMode.HTML);
                     } else {
                         sendMessage.setText("Bino necha qavatdan iborat:");
@@ -357,8 +290,7 @@ public class UserController {
                         sendMessage.setChatId(chatId);
 
                         if (floor < 0 || maxFloor < 0 || floor > maxFloor) {
-                            sendMessage.setText("Ma'lumot xato kiritildi.\nUy nechanchi qavatda joylashgani va bino umumiy necha" +
-                                    "qavatdan iborat ekanligini <b>Misol: \"2/4</b>\" ko'rinishda yuboring");
+                            sendMessage.setText(" Malumot xato kiritildi." + messageFloor);
                             sendMessage.setParseMode(ParseMode.HTML);
                         } else {
                             Parameter parameter = userAdParameters.get(chatId);
@@ -373,12 +305,11 @@ public class UserController {
                         MY_BOT.sendMsg(sendMessage);
 
                     } catch (Exception e) {
-                        sendMessage.setChatId("912429653");
+//                        sendMessage.setChatId("912429653");
                         sendMessage.setText(String.valueOf(e));
                         MY_BOT.sendMsg(sendMessage);
                         sendMessage.setChatId(chatId);
-                        sendMessage.setText("Ma'lumot xato kiritildi.\nUy nechanchi qavatda joylashgani va bino umumiy necha" +
-                                "qavatdan iborat ekanligini <b>Misol: \"2/4</b>\" ko'rinishda yuboring");
+                        sendMessage.setText("Ma'lumot xato kiritildi." + messageFloor);
                         sendMessage.setParseMode(ParseMode.HTML);
                     }
                 } else {
@@ -539,11 +470,6 @@ public class UserController {
             sendMessage.setReplyMarkup(InlineKeyboardUtil.getCurrencies());
             MY_BOT.sendMsg(sendMessage);
 
-//            userStatus.put(chatId, State.ROOM_COUNT);
-//            sendMessage.setText(region.getName() + " viloyati, " + district.getName() + " tumani tanlandi\n" +
-//                    "Xonalar sonini kiriting: ");
-//
-//            MY_BOT.sendMsg(sendMessage);
         } else if (state.equals(State.PRICE_TYPE_ID)) {
             deleteMessage.setChatId(chatId);
             deleteMessage.setMessageId(message.getMessageId());
@@ -726,75 +652,6 @@ public class UserController {
 
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setChatId(chatId);
-//        if (state.equals(State.GET_PHOTO)) {
-//            Ads ads = userAds.get(chatId);
-//
-//            if (ads.getInfo() == null) {
-//                ads.setInfo("E'lon");
-//            }
-//
-//            Parameter parameter = userAdParameters.get(chatId);
-//
-//            ads.setPhotoPath(fileId);
-//            userStatus.put(chatId, State.CONFIRMATION_STATE);
-//            sendPhoto.setPhoto(new InputFile(ads.getPhotoPath()));
-//            String priceName = "";
-//            switch (ads.getPriceTypeId()) {
-//                case 1:
-//                    priceName += "so'm";
-//                    break;
-//                case 2:
-//                    priceName += "dollar";
-//                    break;
-//                case 3:
-//                    priceName += "evro";
-//                    break;
-//                default:
-//                    priceName += "so'm";
-//                    break;
-//            }
-//            String home = "";
-//            switch (ads.getSaleTypeId()) {
-//                case 1:
-//                    home += "sotiladi";
-//                    break;
-//                case 2:
-//                    home += "ijaraga beriladi";
-//                    break;
-//                case 3:
-//                    home += "yangi inshoatlar";
-//                    break;
-//                default:
-//                    home += "hovli";
-//                    break;
-//            }
-//
-//
-//            String caption = "<b>" + ads.getTitle() + "</b>\n" +
-//                    "\uD83C\uDFEC Bino turi: " + DbFunctionsImpl.getHomeTypeById(ads.getHomeTypeId())
-//                    .getName() + "\n" +
-//                    "\uD83C\uDFE2 Bino " + home + "\n" +
-//                    "Xonalar soni: " + parameter.getRoomCount() + "\n" +
-//                    "Bino qavati: " + parameter.getFloor() + "\n";
-//
-//            if (parameter.getMaxFloor() != null) {
-//                caption += "Barcha qavatlar soni: " + parameter.getMaxFloor() + "\n";
-//            }
-//            caption += "\uD83D\uDCB8Narxi: " + ads.getPrice() + " " + priceName + "\n" +
-//                    "\uD83D\uDCCDManzil: " + "" +
-//                    DbFunctionsImpl.getRegionById(String.valueOf(DbFunctionsImpl.getDistrictById(String.valueOf(ads.getDistrictId())).
-//                            getRegionId())).getName() +
-//                    ", " + DbFunctionsImpl.getDistrictById(String.valueOf(ads.getDistrictId())).getName() + " tumani\n" +
-//                    "☎️Aloqa: " + ads.getPhoneNumber() + "\n" +
-//                    "\uD83D\uDCD1Qo'shimcha: " + ads.getInfo() + "\n\n\n" +
-//                    "E'lonni tasdiqlaysizmi? ";
-//
-//            sendPhoto.setCaption(caption);
-//            sendPhoto.setParseMode(ParseMode.HTML);
-//            sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmOrDelete());
-//
-//            MY_BOT.sendMsg(sendPhoto);
-//        }
 
         if (state.equals(State.GET_PHOTO)) {
             Ads ads = userAds.get(chatId);

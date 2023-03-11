@@ -14,7 +14,7 @@ public interface WorkWithDbFunctions {
 
     List<Users> getAllUsers();
 
-    boolean setOrRemoveAdmin(String chatId,boolean status);
+    int setOrRemoveAdmin(String chatId);
 
     boolean removeAdmin(String chatId);
 

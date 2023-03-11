@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -22,18 +23,18 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
 
         String query = BASE_QUERY + " (ads.price between ? AND ? ) AND   ads.district_id= ? AND ads.status_id=3 order by ads.updated_at; ";
 
-            try (Connection connection = DriverManager.getConnection(URL_DB, USER_DB, PASSWORD_DB);
-                 PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-                preparedStatement.setDouble(1, searchPrice.getPrice1());
-                preparedStatement.setDouble(2, searchPrice.getPrice2());
-                preparedStatement.setInt(3, searchPrice.getDistrictId());
+        try (Connection connection = DriverManager.getConnection(URL_DB, USER_DB, PASSWORD_DB);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setDouble(1, searchPrice.getPrice1());
+            preparedStatement.setDouble(2, searchPrice.getPrice2());
+            preparedStatement.setInt(3, searchPrice.getDistrictId());
 
-                flagIsTrue(printResult(preparedStatement, chatId), chatId);
+            flagIsTrue(printResult(preparedStatement, chatId), chatId);
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+    }
 
     public static void searchAdsByDate(String data, String chatId) {
         boolean flag = false;
@@ -60,7 +61,7 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
         try (Connection connection = DriverManager.getConnection(URL_DB, USER_DB, PASSWORD_DB);
         ) {
             Class.forName("org.postgresql.Driver");
-            String query = " ads.status_id=3 AND ads.district_id=? AND par.room_count=? order by ads.updated_at ;";
+            String query = BASE_QUERY + "  ads.district_id=? AND ads.status_id=3 AND par.room_count=? order by ads.updated_at;";
 
 
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -161,7 +162,6 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
         try (Connection connection = DriverManager.getConnection(URL_DB, USER_DB, PASSWORD_DB);) {
             Class.forName("org.postgresql.Driver");
 
-
             String statusChanger = " update ads set status_id = 2  where id = ?;";
             PreparedStatement preparedStatement = connection.prepareStatement(statusChanger);
             preparedStatement.setInt(1, adsId);
@@ -233,10 +233,6 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
 
     @Override
     public boolean addAdvertisement(Ads ads) {
-
-        // bu metod advertisementni fildlarini tekshiradi
-        // agar barchasi to'g'ri bo'lsa bu yangi advertisementni bazaga qo'shadi va boolean
-        // qaytaradi
 
         try (Connection connection = DriverManager.getConnection(
                 URL_DB, USER_DB, PASSWORD_DB);
@@ -367,7 +363,6 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
             preparedStatement.setBoolean(1, !user.isBlocked());
             preparedStatement.setString(2, chatId);
             int i = preparedStatement.executeUpdate();
-            System.out.println(chatId + " ushbu chatIdli user Blocklandi");
             connection.close();
             preparedStatement.close();
             return true;
@@ -379,7 +374,7 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
     }
 
     @Override
-    public boolean setOrRemoveAdmin(String chatId, boolean status) {
+    public int setOrRemoveAdmin(String chatId) {
 
         // bu metodga chat id keladi va bu chat id ga ega userni admin qilib tayinlaydi
         // bu joyda agar user avval bloklangan bo'lsa uni avval is_blocked fildini
@@ -389,23 +384,23 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
             Class.forName("org.postgresql.Driver");
 
             Connection connection = DriverManager.getConnection(URL_DB, USER_DB, PASSWORD_DB);
+            Users user = getUserByChatId(chatId);
 
             String isBlocked = " update users set is_blocked = ?, is_admin = ?, is_active = ?" +
                     "where chat_id = ?;";
             PreparedStatement preparedStatement = connection.prepareStatement(isBlocked);
             preparedStatement.setBoolean(1, false);
-            preparedStatement.setBoolean(2, status);
+            preparedStatement.setBoolean(2, !user.isAdmin());
             preparedStatement.setBoolean(3, true);
             preparedStatement.setString(4, chatId);
             int i = preparedStatement.executeUpdate();
-            if (i == 1 && status) {
+            if (i==1 && !user.isAdmin()) {
                 adminList.add(chatId);
-                return true;
-            } else if (i == 1) {
+                return 1;
+            } else if (i==1 && user.isAdmin()){
                 adminList.remove(chatId);
-                return true;
+                return 2;
             }
-
             connection.close();
             preparedStatement.close();
 
@@ -413,7 +408,7 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
             e.printStackTrace();
         }
 
-        return false;
+        return 0;
     }
 
     @Override
@@ -480,81 +475,6 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
         return users;
     }
 
-
-//    public void getAdsToCheck2(String chatId) {
-//        try {
-//            Class.forName("org.postgresql.Driver");
-//            Connection connection = DriverManager.getConnection(URL_DB, USER_DB, PASSWORD_DB);
-//            String query = """
-//                    select ads.photo_path, ht.name, ads.updated_at as "updated time",
-//                    ads.phone_number, st.name as "sale name", d.name as "district name",reg.name, par.room_count as "room count", par.area, par.floor,par.max_floor,m.name, ads.price "price",
-//                    cur.name "currency type",ads.info "description", ads.id, u.chat_id, ads.title from ads join users u
-//                     on ads.user_id = u.id join sale_type st on ads.sale_type_id = st.id join district d on ads.district_id = d.id join region reg on reg.id = d.region_id
-//                     join parametr par on  ads.parameter_id = par.id join currency cur on ads.price_type_id = cur.id join home_type ht on
-//                      ads.home_type_id=ht.id join ads_status stat on ads.status_id = stat.id join material m on par.material_id= m.id where ads.status_id = ?;""";
-//
-//            PreparedStatement preparedStatement = connection.prepareStatement(query);
-//            preparedStatement.setInt(1, 1);
-//
-//            ResultSet resultSet = preparedStatement.executeQuery();
-//            while (resultSet.next()) {
-//                String photoPath = resultSet.getString(1);
-//                String str = "Bino turi:" + resultSet.getString(2) + "\n" +
-//                        "-------------------------------------------------------" +
-//                        "Telefon 📲: " + resultSet.getString(4) + "\n" +
-//                        "-------------------------------------------------------" +
-//
-//                        "E'lon turi: " + resultSet.getString(5) + "\n" +
-//                        "-------------------------------------------------------" +
-//
-//                        "Viloyat 🗺️: " + resultSet.getString(7) + "\n" +
-//                        "-------------------------------------------------------" +
-//
-//                        "Rayon 🏘️: " + resultSet.getString(6) + "\n" +
-//                        "-------------------------------------------------------" +
-//
-//                        "Maydon 🌍: " + resultSet.getInt(9) + "\n" +
-//                        "-------------------------------------------------------" +
-//
-//                        "Xonalar soni: " + resultSet.getInt(8) + "\n";
-//                if (resultSet.getString(4).equals("Kvartira")) {
-//                    str += "Qavat: " + resultSet.getInt(10) + "/" + resultSet.getInt(11) + "\n" +
-//                            "-------------------------------------------------------";
-//                } else {
-//                    str += "Qavat: " + resultSet.getInt(11) + "\n" +
-//                            "-------------------------------------------------------";
-//                }
-//                str += "Material 🏗️: " + resultSet.getString(12) + "\n" +
-//                        "-------------------------------------------------------" +
-//                        "Narxi 💵: " + resultSet.getInt(13) + " ";
-//
-//                if (resultSet.getString(14).equals("dollar")) {
-//                    str += "$";
-//                }
-//                str += "\n" +
-//                        "Qo'shimcha ma'lumot: " + resultSet.getString(15) + "\n" +
-//                        "-------------------------------------------------------"
-//                        + "Sana 🕛: " + resultSet.getString(3) + "\n";
-//                int adsId = resultSet.getInt(16);
-//                String adsUserChatId = resultSet.getString(17);
-//                String adsTitle = resultSet.getString(18);
-//
-//                SendPhoto sendPhoto = new SendPhoto();
-//                sendPhoto.setChatId(chatId);
-//                sendPhoto.setPhoto(new InputFile(photoPath));
-//                sendPhoto.setCaption("\n" + str);
-//                sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(adsId, adsUserChatId, adsTitle));
-//                ComponentContainer.MY_BOT.sendMsg(sendPhoto);
-//            }
-//
-//            connection.close();
-//            preparedStatement.close();
-//
-//        } catch (SQLException | ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
 
     @Override
     public void getAdsToCheck(String chatId) {  // todo admin
@@ -704,8 +624,9 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
 
 
         Users users = new Users();
-        try (Connection connection = DriverManager.getConnection(URL_DB, USER_DB, PASSWORD_DB);) {
+        try (Connection connection = DriverManager.getConnection(URL_DB, USER_DB, PASSWORD_DB)) {
             int addNewParameter = addNewParameter(parameter);
+            if (addNewParameter == 0) throw new SQLException();
 
             Class.forName("org.postgresql.Driver");
 
@@ -713,8 +634,8 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
             String query = """
                     insert into ads
                     (user_id,ad_type,phone_number,sale_type_id,district_id, 
-                    parameter_id, price, price_type_id, info, home_type_id, photo_path)
-                    values (?,?,?,?,?,?,?,?,?,?,?);
+                    parameter_id, price, price_type_id, info, home_type_id, photo_path,status_id)
+                    values (?,?,?,?,?,?,?,?,?,?,?,?);
                     """;
 
 
@@ -732,6 +653,7 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
             preparedStatement.setInt(10, ads.getHomeTypeId());
             String photo = ads.getPhotoPath();
             preparedStatement.setString(11, photo);
+            preparedStatement.setInt(12, 1);
 
             execute = preparedStatement.executeUpdate();
             System.out.println("execute = " + execute);
@@ -955,7 +877,7 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
         int i = 0;
         try {
             ResultSet resultSet = preparedStatement.executeQuery();
-            List<SendPhoto>sendPhotoList=new ArrayList<>();
+            List<SendPhoto> sendPhotoList = new ArrayList<>();
 
             while (resultSet.next()) {
                 String photoPath = resultSet.getString(1);
@@ -991,7 +913,7 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
 
                 if (adminList.contains(chatId)) {
                     sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(resultSet.getInt(16), resultSet.getString(17)));  // todo admin yangi
-                }else {
+                } else {
                     sendPhoto.setReplyMarkup(InlineKeyboardUtil.nextOrPrev());
                 }
                 sendPhotoList.add(sendPhoto);
@@ -1000,7 +922,7 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
                 i++;
             }
 
-            MY_BOT.sendMsg(sendPhotoList.get(1));
+            MY_BOT.sendMsg(sendPhotoList.get(0));
         } catch (Exception e) {
             e.printStackTrace();
         }

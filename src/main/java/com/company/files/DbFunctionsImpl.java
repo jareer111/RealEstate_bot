@@ -1,6 +1,7 @@
 package com.company.files;
 
 import com.company.container.ComponentContainer;
+import com.company.dto.AdsDetailsDTO;
 import com.company.entity.*;
 import com.company.util.InlineKeyboardUtil;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,8 +12,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 
 import java.math.BigDecimal;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.company.container.ComponentContainer.*;
 
@@ -394,10 +395,10 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
             preparedStatement.setBoolean(3, true);
             preparedStatement.setString(4, chatId);
             int i = preparedStatement.executeUpdate();
-            if (i==1 && !user.isAdmin()) {
+            if (i == 1 && !user.isAdmin()) {
                 adminList.add(chatId);
                 return 1;
-            } else if (i==1 && user.isAdmin()){
+            } else if (i == 1 && user.isAdmin()) {
                 adminList.remove(chatId);
                 return 2;
             }
@@ -873,61 +874,156 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
 
     //javokhir
 
+    //    static boolean printResult0(PreparedStatement preparedStatement, String chatId) {
+//        int i = 0;
+//        try {
+//            ResultSet resultSet = preparedStatement.executeQuery();
+//            List<SendPhoto> sendPhotoList = new ArrayList<>();
+//
+//            while (resultSet.next()) {
+//                String photoPath = resultSet.getString(1);
+//                String str = "🏠 Bino turi:" + resultSet.getString(2) + "\n" +
+//                        "📲 Telefon: " + resultSet.getString(4) + "\n" +
+//                        "📄 E'lon turi: " + resultSet.getString(5) + "\n" +
+//                        "🏙 Viloyat: " + resultSet.getString(7) + "\n" +
+//                        "🌃 Tuman: " + resultSet.getString(6) + "\n" +
+//                        "🗺 Maydon: " + resultSet.getInt(9) + "\n" +
+//                        "\uD83D\uDD22 Xonalar soni: " + resultSet.getInt(8) + "\n";
+//                if (resultSet.getString(4).equals("Kvartira")) {
+//                    str += "🏢 Qavat: " + resultSet.getInt(10) + "/" + resultSet.getInt(11) + "\n";
+//                } else {
+//                    str += "🏢 Qavat: " + resultSet.getInt(11) + "\n";
+//                }
+//                str += "🏛️ Material: " + resultSet.getString(12) + "\n" +
+//                        "💰 Narxi: " + resultSet.getInt(13) + "  " + resultSet.getString(14) +
+//                        "\n\n" +
+//                        "\uD83D\uDCAC  Qo'shimcha ma'lumot: " + resultSet.getString(15) + "\n"
+//                        + "\uD83D\uDCC5  Sana: " + resultSet.getString(3) + "\n\n" + "\uD83D\uDC49 https://t.me/uy_joy_uzbekistan";
+//
+//                SendMessage sendMessage = new SendMessage();
+//                if (i == 0 && !adminList.contains(chatId) && !chatId.equals(CHANEL_ID)) {
+//                    sendMessage.setChatId(chatId);
+//                    sendMessage.setText("Sizning qidiruv natijalaringiz 📰");
+//                    MY_BOT.sendMsg(sendMessage);
+//                }
+//                SendPhoto sendPhoto = new SendPhoto();
+//                sendPhoto.setChatId(chatId);
+//                sendPhoto.setPhoto(new InputFile(photoPath));
+//                sendPhoto.setCaption("\n" + str);
+//
+//                if (adminList.contains(chatId)) {
+//                    sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(resultSet.getInt(16), resultSet.getString(17)));  // todo admin yangi
+//                } else {
+//                    sendPhoto.setReplyMarkup(InlineKeyboardUtil.nextOrPrev());
+//                }
+//                sendPhotoList.add(sendPhoto);
+//                i++;
+//            }
+//
+//            MY_BOT.sendMsg(sendPhotoList.get(0));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        if (i != 0) return true;
+//        return false;
+//    }
+
+
     static boolean printResult(PreparedStatement preparedStatement, String chatId) {
-        int i = 0;
         try {
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<SendPhoto> sendPhotoList = new ArrayList<>();
 
-            while (resultSet.next()) {
-                String photoPath = resultSet.getString(1);
-                String str = "🏠 Bino turi:" + resultSet.getString(2) + "\n" +
-                        "📲 Telefon: " + resultSet.getString(4) + "\n" +
-                        "📄 E'lon turi: " + resultSet.getString(5) + "\n" +
-                        "🏙 Viloyat: " + resultSet.getString(7) + "\n" +
-                        "🌃 Tuman: " + resultSet.getString(6) + "\n" +
-                        "🗺 Maydon: " + resultSet.getInt(9) + "\n" +
-                        "\uD83D\uDD22 Xonalar soni: " + resultSet.getInt(8) + "\n";
-                if (resultSet.getString(4).equals("Kvartira")) {
-                    str += "🏢 Qavat: " + resultSet.getInt(10) + "/" + resultSet.getInt(11) + "\n";
-                } else {
-                    str += "🏢 Qavat: " + resultSet.getInt(11) + "\n";
-                }
-                str += "🏛️ Material: " + resultSet.getString(12) + "\n" +
-                        "💰 Narxi: " + resultSet.getInt(13) + "  " + resultSet.getString(14) +
-                        "\n\n" +
-                        "\uD83D\uDCAC  Qo'shimcha ma'lumot: " + resultSet.getString(15) + "\n"
-                        + "\uD83D\uDCC5  Sana: " + resultSet.getString(3) + "\n\n" + "\uD83D\uDC49 https://t.me/uy_joy_uzbekistan";
-//                sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(adsId, adsUserChatId, adsTitle));
+            List<AdsDetailsDTO> adsDetailsDTOlist = getAdsDTOlist(preparedStatement);
+            buttonPressCount.put(chatId, 0);
+            productMap.put(chatId, adsDetailsDTOlist);
 
-                SendMessage sendMessage = new SendMessage();
-                if (i == 0 && !adminList.contains(chatId) && !chatId.equals(CHANEL_ID)) {
-                    sendMessage.setChatId(chatId);
-                    sendMessage.setText("Sizning qidiruv natijalaringiz 📰");
-                    MY_BOT.sendMsg(sendMessage);
-                }
-                SendPhoto sendPhoto = new SendPhoto();
-                sendPhoto.setChatId(chatId);
-                sendPhoto.setPhoto(new InputFile(photoPath));
-                sendPhoto.setCaption("\n" + str);
+                printAdsWithOrder(chatId, 0);
 
-                if (adminList.contains(chatId)) {
-                    sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(resultSet.getInt(16), resultSet.getString(17)));  // todo admin yangi
-                } else {
-                    sendPhoto.setReplyMarkup(InlineKeyboardUtil.nextOrPrev());
-                }
-                sendPhotoList.add(sendPhoto);
-//                ComponentContainer.MY_BOT.sendMsg(sendPhoto);
-
-                i++;
-            }
-
-            MY_BOT.sendMsg(sendPhotoList.get(0));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (i != 0) return true;
-        return false;
+        return true;
+    }
+
+    public static void printAdsWithOrder(String chatId, Integer road) {
+
+        Integer order = buttonPressCount.get(chatId);
+        int sum = order + road;
+        AdsDetailsDTO dto = productMap.get(chatId).get(sum);
+        buttonPressCount.put(chatId, sum);
+        List<SendPhoto> sendPhotoList = new ArrayList<>();
+
+//        for (int j = 0; j < adsDetailsDTOlist.size(); j++) {
+//            AdsDetailsDTO dto = adsDetailsDTOlist.get(j);
+        String photoPath = dto.getOne();
+        String str = "🏠 Bino turi:" + dto.getTwo() + "\n" +
+                "📲 Telefon: " + dto.getFour() + "\n" +
+                "📄 E'lon turi: " + dto.getFive() + "\n" +
+                "🏙 Viloyat: " + dto.getSeven() + "\n" +
+                "🌃 Tuman: " + dto.getSix() + "\n" +
+                "🗺 Maydon: " + dto.getNine() + "\n" +
+                "\uD83D\uDD22 Xonalar soni: " + dto.getEight() + "\n";
+        if (dto.getFour().equals("Kvartira")) {
+            str += "🏢 Qavat: " + dto.getTen() + "/" + dto.getEleven() + "\n";
+        } else {
+            str += "🏢 Qavat: " + dto.getEleven() + "\n";
+        }
+        str += "🏛️ Material: " + dto.getTwelve() + "\n" +
+                "💰 Narxi: " + dto.getThirteen() + "  " + dto.getFourteen() +
+                "\n\n" +
+                "\uD83D\uDCAC  Qo'shimcha ma'lumot: " + dto.getFifteen() + "\n"
+                + "\uD83D\uDCC5  Sana: " + dto.getThree() + "\n\n" + "\uD83D\uDC49 https://t.me/uy_joy_uzbekistan";
+
+        SendMessage sendMessage = new SendMessage();
+        if (!adminList.contains(chatId) && !chatId.equals(CHANEL_ID)) {
+            sendMessage.setChatId(chatId);
+            sendMessage.setText("Sizning qidiruv natijalaringiz 📰 ");
+            MY_BOT.sendMsg(sendMessage);
+        }
+        SendPhoto sendPhoto = new SendPhoto();
+        sendPhoto.setChatId(chatId);
+        sendPhoto.setPhoto(new InputFile(photoPath));
+        sendPhoto.setCaption("\n" + str);
+
+        if (adminList.contains(chatId)) {
+            sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(dto.getSixteen(), dto.getSeventeen()));  // todo admin yangi
+        } else {
+            sendPhoto.setReplyMarkup(InlineKeyboardUtil.nextOrPrev());
+        }
+        sendPhotoList.add(sendPhoto);
+
+        MY_BOT.sendMsg(sendPhotoList.get(order));
+//    }
+
+    }
+
+    private static List<AdsDetailsDTO> getAdsDTOlist(PreparedStatement preparedStatement) throws SQLException {
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<AdsDetailsDTO> adsDetailsDTOlist = new ArrayList<>();
+        int i = 0;
+        while (resultSet.next()) {
+            AdsDetailsDTO adsDetailsDTO = AdsDetailsDTO.builder()
+                    .one(resultSet.getString(1))
+                    .two(resultSet.getString(2))
+                    .three(resultSet.getString(3))
+                    .four(resultSet.getString(4))
+                    .five(resultSet.getString(5))
+                    .six(resultSet.getString(6))
+                    .seven(resultSet.getString(7))
+                    .eight(resultSet.getInt(8))
+                    .nine(resultSet.getInt(9))
+                    .ten(resultSet.getInt(10))
+                    .eleven(resultSet.getInt(11))
+                    .twelve(resultSet.getString(12))
+                    .thirteen(resultSet.getInt(13))
+                    .fourteen(resultSet.getString(14))
+                    .fifteen(resultSet.getString(15))
+                    .sixteen(resultSet.getInt(16))
+                    .seventeen(resultSet.getString(17))
+                    .build();
+            adsDetailsDTOlist.add(adsDetailsDTO);
+            i++;
+        }
+        return adsDetailsDTOlist;
     }
 
 

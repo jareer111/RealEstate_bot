@@ -75,8 +75,6 @@ public class InlineKeyboardUtil {
         int adsID =adsId+100;
                 InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> general = new ArrayList<>();
-//        List<List<InlineKeyboardButton>> general2 = new ArrayList<>();
-
         InlineKeyboardButton button = new InlineKeyboardButton();
         InlineKeyboardButton button1 = new InlineKeyboardButton();
         InlineKeyboardButton button3 = new InlineKeyboardButton();
@@ -92,7 +90,6 @@ public class InlineKeyboardUtil {
         general.add(new ArrayList<>(List.of(button1, button)));
         general.add(new ArrayList<>(List.of(button3, button4)));
         markup.setKeyboard(general);
-//        markup.setKeyboard(general2);
         return markup;
 
     }

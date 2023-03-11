@@ -5,6 +5,7 @@ import com.company.entity.*;
 import com.company.enums.State;
 import com.company.files.DbFunctionsImpl;
 import com.company.files.WorkWithDbFunctions;
+import com.company.util.InlineButtonConstants;
 import com.company.util.InlineKeyboardUtil;
 import com.company.util.KeyboardButtonConstants;
 import com.company.util.KeyboardButtonUtil;
@@ -414,7 +415,11 @@ public class UserController {
             MY_BOT.sendMsg(deleteMessage);
             String[] split = data.split("/");
             int adsId = Integer.parseInt(split[0]);
-
+        }
+        else if (data.equals(InlineButtonConstants.NEXT_AD_CALL_BACK)) {
+            DbFunctionsImpl.printAdsWithOrder(chatId, 1);
+        } else if (data.equals(InlineButtonConstants.PREV_AD_CALL_BACK)) {
+            DbFunctionsImpl.printAdsWithOrder(chatId, -1);
         }
 
         if (state.equals(State.GET_SALE_TYPE_ID)) {
@@ -615,9 +620,8 @@ public class UserController {
             deleteMessage.setChatId(chatId);
             deleteMessage.setMessageId(message.getMessageId());
             MY_BOT.sendMsg(deleteMessage);
-
-
             DbFunctionsImpl.searchAdsByDate(data, chatId);
+            userStatus.remove(chatId);
         } else if (state.equals(State.CONFIRMATION_STATE)) {
             deleteMessage.setChatId(chatId);
             deleteMessage.setMessageId(message.getMessageId());

@@ -101,7 +101,7 @@ public class AdminController {
 
 
             sendMessage.setChatId(customerChatId);
-            sendMessage.setText("Adminning sizga javobi: \uD83D\uDCE8 \n "+text);
+            sendMessage.setText("Adminning sizga javobi: \uD83D\uDCE8 \n " + text);
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
 
             EditMessageText editMessageText = new EditMessageText();
@@ -121,33 +121,31 @@ public class AdminController {
             ComponentContainer.adminAnswerMap.remove(chatId);
 
 
-        }
-        else if (adminStatusMap.get(chatId).equals(AdminStatus.SETTING_ADMIN)) {
+        } else if (adminStatusMap.get(chatId).equals(AdminStatus.SETTING_ADMIN)) {
             int isAdmin = object.setOrRemoveAdmin(text);
             SendMessage userMessage = new SendMessage();
             userMessage.setChatId(text);
-            if (isAdmin==1) {
+            if (isAdmin == 1) {
                 sendMessage.setText("Yangi Admin qo'shildi");
                 userMessage.setText("Siz " + user.getFirstName() + " tomonidan admin qilib saylandingiz");
                 userMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
                 ComponentContainer.MY_BOT.sendMsg(userMessage);
-            }else if (isAdmin==2) {
+            } else if (isAdmin == 2) {
                 sendMessage.setText("Adminlik huquqi olib tashlandi");
                 userMessage.setText("Sizning  adminlik huquqingiz  " + user.getFirstName() + " tomonidan  olib tashlandi ");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
                 userMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
                 ComponentContainer.MY_BOT.sendMsg(userMessage);
-            }
-            else {
+            } else {
                 sendMessage.setText("""
-                         Xatolik yuz berdi
-                         Xatolik sabab bo'lishiga olib keluvchi sabablar
-                         1.Kiritilgan chatId xato
-                         2.Bunday chatId egasi botdan ro'yxatdan o'tmagan
-                         """);
+                        Xatolik yuz berdi
+                        Xatolik sabab bo'lishiga olib keluvchi sabablar
+                        1.Kiritilgan chatId xato
+                        2.Bunday chatId egasi botdan ro'yxatdan o'tmagan
+                        """);
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
             }
             adminStatusMap.put(chatId, AdminStatus.NOTHING);
@@ -250,7 +248,7 @@ public class AdminController {
                 sendMessage.setText("E'lonlar taxtasi yangilandi \n E'lon muvaffaqiyatli saqlandi ☑️");
                 DbFunctionsImpl.getAdsById(adsId);
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
-            }else {
+            } else {
                 sendMessage.setChatId(chatId);
                 sendMessage.setText("Bunday e'lon mavjud emas qayta urinib kuring \uD83D\uDD04");
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
@@ -272,8 +270,12 @@ public class AdminController {
             sendMessage.setChatId(chatId);
             sendMessage.setText("Operatsiya muvaffaqiyatli yakunladi");
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
-
+        } else if (data.equals(InlineButtonConstants.NEXT_AD_CALL_BACK)) {
+            DbFunctionsImpl.printAdsWithOrder(chatId, 1);
+        } else if (data.equals(InlineButtonConstants.PREV_AD_CALL_BACK)) {
+            DbFunctionsImpl.printAdsWithOrder(chatId, -1);
         }
+
     }
 
 }

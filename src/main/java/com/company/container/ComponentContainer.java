@@ -2,12 +2,14 @@ package com.company.container;
 
 
 import com.company.Bot.RealEstateBot;
+import com.company.dto.AdsDetailsDTO;
 import com.company.entity.MessageData;
 import com.company.enums.AdminStatus;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ComponentContainer {
     public static RealEstateBot MY_BOT = null;
@@ -19,7 +21,7 @@ public class ComponentContainer {
     public static final String URL_DB = "jdbc:postgresql://localhost:5432/estate_bot";
     public static final String DATABASE = "";
     public static final String HOST = "";
-    public static final String BASE_FOLDER =  "javohir/home/apps/realbot/upload";
+    public static final String BASE_FOLDER = "javohir/home/apps/realbot/upload";
     public static final String CHANEL_ID = "-1001820396753";
     public static Map<String, AdminStatus> adminStatusMap = new HashMap<>();
     public static final Map<Integer, String> BASE_MATERIAL_HOME = new HashMap<>();
@@ -42,5 +44,9 @@ public class ComponentContainer {
     public static Map<String, Boolean> customerMap = new HashMap<>();
     public static Map<String, MessageData> adminAnswerMap = new HashMap<>();
 
+    // map for containing the products for a certain time
+    public static Map<String, List<AdsDetailsDTO>> productMap = new ConcurrentHashMap<>();
+    // for tracking the amount of button presses by the users
+    public static Map<String, Integer> buttonPressCount = new ConcurrentHashMap<>();
 
 }

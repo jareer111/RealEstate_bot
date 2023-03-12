@@ -31,3 +31,5 @@
 /target/classes/com/company/entity/Users.class
 /target/classes/com/company/files/WorkWithDbFunctions.class
 /target/classes/com/company/files/WorkWithFiles.class
+/target/classes/com/company/entity/Ads$AdsBuilder.class
+/.idea/dictionaries/javohir.xml

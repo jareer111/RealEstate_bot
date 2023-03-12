@@ -891,17 +891,17 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
 
     public static void printAdsWithOrder(String chatId, Integer road) {
 
-        try {
-            Integer msgid = nextprevorder.get(chatId);
-            if (msgid != null) {
-                DeleteMessage deleteMessage = new DeleteMessage();
-                deleteMessage.setChatId(chatId);
-                deleteMessage.setMessageId(msgid);
-                MY_BOT.sendMsg(deleteMessage);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Integer msgid = nextprevorder.get(chatId);
+//            if (msgid != null) {
+//                DeleteMessage deleteMessage = new DeleteMessage();
+//                deleteMessage.setChatId(chatId);
+//                deleteMessage.setMessageId(msgid);
+//                MY_BOT.sendMsg(deleteMessage);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         Integer order = buttonPressCount.get(chatId);
         int sum = order + road;
@@ -936,14 +936,17 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
 
         EditMessageMedia emd = new EditMessageMedia();
         emd.setMedia(new InputMediaPhoto());
-        if (adminList.contains(chatId)) {
-            sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(dto.getSixteen(), dto.getSeventeen()));  // todo admin yangi
-        } else if (!chatId.equals(CHANEL_ID)) {
-            sendPhoto.setReplyMarkup(InlineKeyboardUtil.nextOrPrev());
+        if (!chatId.equals(CHANEL_ID)) {
+            if (adminList.contains(chatId)) {
+                sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(dto.getSixteen(), dto.getSeventeen()));  // todo admin yangi
+                sendPhoto.setReplyMarkup(InlineKeyboardUtil.nextOrPrev(chatId, order));
+            } else {
+                sendPhoto.setReplyMarkup(InlineKeyboardUtil.nextOrPrev(chatId, order));
+            }
         }
-
-        Message message = MY_BOT.sendMsg(sendPhoto);
-        nextprevorder.put(chatId, message.getMessageId());
+        ArrayList<Object> photoList = new ArrayList<>();
+        photoList.add(sendPhoto);
+        MY_BOT.sendMsg(photoList.get(0));
 
     }
 

@@ -1,5 +1,6 @@
 package com.company.util;
 
+import com.company.dto.AdsDetailsDTO;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -72,8 +73,8 @@ public class InlineKeyboardUtil {
     }
 
     public static InlineKeyboardMarkup confirmAd(int adsId, String userId) {
-        int adsID =adsId+100;
-                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        int adsID = adsId + 100;
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> general = new ArrayList<>();
         InlineKeyboardButton button = new InlineKeyboardButton();
         InlineKeyboardButton button1 = new InlineKeyboardButton();
@@ -94,19 +95,39 @@ public class InlineKeyboardUtil {
 
     }
 
+    public static InlineKeyboardButton getButton(String buttonConstants,String callBackData) {
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setCallbackData(callBackData);
+        button.setText(buttonConstants);
+        return button;
+    }
 
-    public static ReplyKeyboard nextOrPrev() {
+    // todo  hamma buttonlarni alohida methodni chaqirib yozish kerak  12 mart.
+
+
+    public static ReplyKeyboard nextOrPrev(String userId, Integer order) {
+
+        List<AdsDetailsDTO> list = productMap.get(userId);
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> general = new ArrayList<>();
 
         InlineKeyboardButton button = new InlineKeyboardButton();
         InlineKeyboardButton button1 = new InlineKeyboardButton();
-
-        button.setCallbackData(InlineButtonConstants.PREV_AD_CALL_BACK);
-        button.setText(InlineButtonConstants.PREV_AD);
-        button1.setCallbackData(InlineButtonConstants.NEXT_AD_CALL_BACK);
-        button1.setText(InlineButtonConstants.NEXT_AD);
-        general.add(new ArrayList<>(List.of(button, button1)));
+        if (order > 0) {
+            button.setCallbackData(InlineButtonConstants.PREV_AD_CALL_BACK);
+            button.setText(InlineButtonConstants.PREV_AD);
+            general.add(new ArrayList<>(List.of(button)));
+        } else if (order != list.size()) {
+            button1.setCallbackData(InlineButtonConstants.NEXT_AD_CALL_BACK);
+            button1.setText(InlineButtonConstants.NEXT_AD);
+            general.add(new ArrayList<>(List.of(button1)));
+        } else {
+            button.setCallbackData(InlineButtonConstants.PREV_AD_CALL_BACK);
+            button.setText(InlineButtonConstants.PREV_AD);
+            button1.setCallbackData(InlineButtonConstants.NEXT_AD_CALL_BACK);
+            button1.setText(InlineButtonConstants.NEXT_AD);
+            general.add(new ArrayList<>(List.of(button, button1)));
+        }
         markup.setKeyboard(general);
         return markup;
     }

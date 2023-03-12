@@ -77,9 +77,11 @@ public class RealEstateBot extends TelegramLongPollingBot {
         try {
             if (obj instanceof SendMessage) {
                 execute((SendMessage) obj);
-            } else if (obj instanceof DeleteMessage) {
+            }
+            else if (obj instanceof DeleteMessage) {
                 execute((DeleteMessage) obj);
-            } else if (obj instanceof EditMessageText) {
+            }
+            else if (obj instanceof EditMessageText) {
                 execute((EditMessageText) obj);
             } else if (obj instanceof SendPhoto) {
                  execute((SendPhoto) obj);

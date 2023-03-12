@@ -3,11 +3,15 @@ package com.company.files;
 import com.company.container.ComponentContainer;
 import com.company.dto.AdsDetailsDTO;
 import com.company.entity.*;
+import com.company.enums.State;
 import com.company.util.InlineKeyboardUtil;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageMedia;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
 import java.math.BigDecimal;
@@ -16,6 +20,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.company.container.ComponentContainer.*;
+import static com.company.controller.UserController.searchStatus;
 
 public class DbFunctionsImpl implements WorkWithDbFunctions {
 
@@ -935,9 +940,15 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
             List<AdsDetailsDTO> adsDetailsDTOlist = getAdsDTOlist(preparedStatement);
             buttonPressCount.put(chatId, 0);
             productMap.put(chatId, adsDetailsDTOlist);
+            SendMessage sendMessage = new SendMessage();
 
-                printAdsWithOrder(chatId, 0);
-
+            if (!adminList.contains(chatId) && !chatId.equals(CHANEL_ID)) {
+                sendMessage.setChatId(chatId);
+                sendMessage.setText("Sizning qidiruv natijalaringiz 📰 ");
+                MY_BOT.sendMsg(sendMessage);
+            }
+            printAdsWithOrder(chatId, 0);
+            searchStatus.put(chatId, State.SEARCHING_PROSSES);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -973,17 +984,14 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
                 "\uD83D\uDCAC  Qo'shimcha ma'lumot: " + dto.getFifteen() + "\n"
                 + "\uD83D\uDCC5  Sana: " + dto.getThree() + "\n\n" + "\uD83D\uDC49 https://t.me/uy_joy_uzbekistan";
 
-        SendMessage sendMessage = new SendMessage();
-        if (!adminList.contains(chatId) && !chatId.equals(CHANEL_ID)) {
-            sendMessage.setChatId(chatId);
-            sendMessage.setText("Sizning qidiruv natijalaringiz 📰 ");
-            MY_BOT.sendMsg(sendMessage);
-        }
+
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setChatId(chatId);
         sendPhoto.setPhoto(new InputFile(photoPath));
         sendPhoto.setCaption("\n" + str);
 
+        EditMessageMedia emd=new EditMessageMedia();
+        emd.setMedia(new InputMediaPhoto());
         if (adminList.contains(chatId)) {
             sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(dto.getSixteen(), dto.getSeventeen()));  // todo admin yangi
         } else {
@@ -991,7 +999,7 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
         }
         sendPhotoList.add(sendPhoto);
 
-        MY_BOT.sendMsg(sendPhotoList.get(order));
+        MY_BOT.sendMsg(sendPhotoList.get(0));
 //    }
 
     }

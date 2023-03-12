@@ -5,18 +5,14 @@ import com.company.entity.*;
 import com.company.enums.AdminStatus;
 import com.company.files.DbFunctionsImpl;
 import com.company.files.WorkWithDbFunctions;
-import com.company.files.WorkWithFiles;
 import com.company.util.InlineButtonConstants;
 import com.company.util.KeyboardButtonConstants;
 import com.company.util.KeyboardButtonUtil;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.*;
-
-import java.io.File;
 
 import static com.company.container.ComponentContainer.*;
 
@@ -270,9 +266,9 @@ public class AdminController {
             sendMessage.setChatId(chatId);
             sendMessage.setText("Operatsiya muvaffaqiyatli yakunladi");
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
-        } else if (data.equals(InlineButtonConstants.NEXT_AD_CALL_BACK)) {
+        } else if (data.startsWith(InlineButtonConstants.NEXT_AD_CALL_BACK)) {
             DbFunctionsImpl.printAdsWithOrder(chatId, 1);
-        } else if (data.equals(InlineButtonConstants.PREV_AD_CALL_BACK)) {
+        } else if (data.startsWith(InlineButtonConstants.PREV_AD_CALL_BACK)) {
             DbFunctionsImpl.printAdsWithOrder(chatId, -1);
         }
 

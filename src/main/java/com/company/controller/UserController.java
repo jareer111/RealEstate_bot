@@ -24,7 +24,8 @@ import java.util.*;
 import static com.company.container.ComponentContainer.*;
 
 public class UserController {
-    static Map<String, State> userStatus = new HashMap<>();
+    public static Map<String, State> userStatus = new HashMap<>();
+    public static Map<String, State> searchStatus = new HashMap<>();
     static Map<String, Ads> userAds = new HashMap<>();
 
     // javohir
@@ -171,6 +172,7 @@ public class UserController {
         } else if (text.equals(KeyboardButtonConstants.S_BY_ADDRES)) {
             DeleteMessage deleteMessage = new DeleteMessage();
             deleteMessage.setChatId(chatId);
+            deleteMessage.setMessageId(message.getMessageId());
             MY_BOT.sendMsg(deleteMessage);
 
             sendMessage.setText("Nima maqsadda qidiryapsiz ");
@@ -238,10 +240,14 @@ public class UserController {
                     MY_BOT.sendMsg(sendMessage);
 
                 } else {
+                    DeleteMessage deleteMessage = new DeleteMessage();
+                    deleteMessage.setChatId(chatId);
+                    deleteMessage.setMessageId(message.getMessageId());
+                    MY_BOT.sendMsg(deleteMessage);
                     sendMessage.setChatId(chatId);
                     sendMessage.setText("Noto'g'ri turdagi raqam kiritildi.\n" +
                             "Raqamni qaytadan yuboring.");
-                    MY_BOT.sendMsg(sendMessage);
+                    Message msg = MY_BOT.sendMsg(sendMessage);
                 }
             } else if (state.equals(State.ROOM_COUNT)) {
 
@@ -416,15 +422,9 @@ public class UserController {
             String[] split = data.split("/");
             int adsId = Integer.parseInt(split[0]);
         }
-        else if (data.equals(InlineButtonConstants.NEXT_AD_CALL_BACK)) {
-            DbFunctionsImpl.printAdsWithOrder(chatId, 1);
-        } else if (data.equals(InlineButtonConstants.PREV_AD_CALL_BACK)) {
-            DbFunctionsImpl.printAdsWithOrder(chatId, -1);
-        }
 
         if (state.equals(State.GET_SALE_TYPE_ID)) {
             userStatus.put(chatId, State.GET_REGION_ID);
-
 
             deleteMessage.setChatId(chatId);
             deleteMessage.setMessageId(message.getMessageId());
@@ -617,12 +617,18 @@ public class UserController {
             DbFunctionsImpl.getSearchByPrice(searchPrice, chatId);
             searchPriceMap.remove(chatId);
         } else if (state.equals(State.S_DATE)) {
+                if (data.equals(InlineButtonConstants.NEXT_AD_CALL_BACK)) {
+                    DbFunctionsImpl.printAdsWithOrder(chatId, 1);
+                } else if (data.equals(InlineButtonConstants.PREV_AD_CALL_BACK)) {
+                    DbFunctionsImpl.printAdsWithOrder(chatId, -1);
+                }
+            else {
             deleteMessage.setChatId(chatId);
             deleteMessage.setMessageId(message.getMessageId());
             MY_BOT.sendMsg(deleteMessage);
             DbFunctionsImpl.searchAdsByDate(data, chatId);
             userStatus.remove(chatId);
-        } else if (state.equals(State.CONFIRMATION_STATE)) {
+        } }else if (state.equals(State.CONFIRMATION_STATE)) {
             deleteMessage.setChatId(chatId);
             deleteMessage.setMessageId(message.getMessageId());
             MY_BOT.sendMsg(deleteMessage);

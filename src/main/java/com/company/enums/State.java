@@ -38,7 +38,7 @@ public enum State {
     GET_PRICE,
     SEARCH_REGION_BY_PRICE,
     SEARCH_DISTRICT_BY_PRICE,
-    S_DATE,
+    S_DATE, SEARCHING_PROSSES,
 
 
 }

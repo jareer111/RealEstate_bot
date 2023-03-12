@@ -33,7 +33,7 @@ public class Main {
             botsApi.registerBot(myBot);
 
             sendMessageToAdmins();
-        } catch (TelegramApiException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

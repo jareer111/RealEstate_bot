@@ -14,8 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ComponentContainer {
     public static RealEstateBot MY_BOT = null;
 
-    public static String BOT_USERNAME = "@Teeeeeeeeeeeeeeeeest_uchunde_bot";
-    public static String BOT_TOKEN = "5408832173:AAFvKszbyFZduJxUlfdVBf8ObLRsRyAUBuM";
+    public static String BOT_USERNAME = "@realestate_uz_bot";
+    public static String BOT_TOKEN = "5863976446:AAEz2y5VnK3TChzLfS28Yrsn1qfhHu19Uz4";
     public static final String USER_DB = "postgres";
     public static final String PASSWORD_DB = "123";
     public static final String URL_DB = "jdbc:postgresql://localhost:5432/estate_bot";
@@ -48,5 +48,6 @@ public class ComponentContainer {
     public static Map<String, List<AdsDetailsDTO>> productMap = new ConcurrentHashMap<>();
     // for tracking the amount of button presses by the users
     public static Map<String, Integer> buttonPressCount = new ConcurrentHashMap<>();
+    public static Map<String, Integer> nextprevorder = new ConcurrentHashMap<>();
 
 }

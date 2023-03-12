@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class Ads {
     private int id;
     private long userId;

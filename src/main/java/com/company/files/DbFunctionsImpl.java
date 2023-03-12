@@ -7,10 +7,12 @@ import com.company.enums.State;
 import com.company.util.InlineKeyboardUtil;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageMedia;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
@@ -21,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.company.container.ComponentContainer.*;
 import static com.company.controller.UserController.searchStatus;
+import static com.company.controller.UserController.userStatus;
 
 public class DbFunctionsImpl implements WorkWithDbFunctions {
 
@@ -759,26 +762,6 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
         }
     }
 
-    public static void editPhoneNumber(Ads ads, String newPhoneNumber) {
-        try {
-            Class.forName("org.postgresql.Driver");
-
-            Connection connection = DriverManager.getConnection(URL_DB, USER_DB, PASSWORD_DB);
-
-            String query = " update ads set phone_number = ?" +
-                    "where ads.id = ?;";
-
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, newPhoneNumber);
-            preparedStatement.setInt(2, ads.getId());
-
-            int execute = preparedStatement.executeUpdate();
-            System.out.println("execute = " + execute);
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void editDistrictId(Ads ads, Integer newDistrictId) {
         try {
             Class.forName("org.postgresql.Driver");
@@ -877,78 +860,29 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
     }
 
 
-    //javokhir
-
-    //    static boolean printResult0(PreparedStatement preparedStatement, String chatId) {
-//        int i = 0;
-//        try {
-//            ResultSet resultSet = preparedStatement.executeQuery();
-//            List<SendPhoto> sendPhotoList = new ArrayList<>();
-//
-//            while (resultSet.next()) {
-//                String photoPath = resultSet.getString(1);
-//                String str = "🏠 Bino turi:" + resultSet.getString(2) + "\n" +
-//                        "📲 Telefon: " + resultSet.getString(4) + "\n" +
-//                        "📄 E'lon turi: " + resultSet.getString(5) + "\n" +
-//                        "🏙 Viloyat: " + resultSet.getString(7) + "\n" +
-//                        "🌃 Tuman: " + resultSet.getString(6) + "\n" +
-//                        "🗺 Maydon: " + resultSet.getInt(9) + "\n" +
-//                        "\uD83D\uDD22 Xonalar soni: " + resultSet.getInt(8) + "\n";
-//                if (resultSet.getString(4).equals("Kvartira")) {
-//                    str += "🏢 Qavat: " + resultSet.getInt(10) + "/" + resultSet.getInt(11) + "\n";
-//                } else {
-//                    str += "🏢 Qavat: " + resultSet.getInt(11) + "\n";
-//                }
-//                str += "🏛️ Material: " + resultSet.getString(12) + "\n" +
-//                        "💰 Narxi: " + resultSet.getInt(13) + "  " + resultSet.getString(14) +
-//                        "\n\n" +
-//                        "\uD83D\uDCAC  Qo'shimcha ma'lumot: " + resultSet.getString(15) + "\n"
-//                        + "\uD83D\uDCC5  Sana: " + resultSet.getString(3) + "\n\n" + "\uD83D\uDC49 https://t.me/uy_joy_uzbekistan";
-//
-//                SendMessage sendMessage = new SendMessage();
-//                if (i == 0 && !adminList.contains(chatId) && !chatId.equals(CHANEL_ID)) {
-//                    sendMessage.setChatId(chatId);
-//                    sendMessage.setText("Sizning qidiruv natijalaringiz 📰");
-//                    MY_BOT.sendMsg(sendMessage);
-//                }
-//                SendPhoto sendPhoto = new SendPhoto();
-//                sendPhoto.setChatId(chatId);
-//                sendPhoto.setPhoto(new InputFile(photoPath));
-//                sendPhoto.setCaption("\n" + str);
-//
-//                if (adminList.contains(chatId)) {
-//                    sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(resultSet.getInt(16), resultSet.getString(17)));  // todo admin yangi
-//                } else {
-//                    sendPhoto.setReplyMarkup(InlineKeyboardUtil.nextOrPrev());
-//                }
-//                sendPhotoList.add(sendPhoto);
-//                i++;
-//            }
-//
-//            MY_BOT.sendMsg(sendPhotoList.get(0));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        if (i != 0) return true;
-//        return false;
-//    }
-
-
     static boolean printResult(PreparedStatement preparedStatement, String chatId) {
         try {
 
             List<AdsDetailsDTO> adsDetailsDTOlist = getAdsDTOlist(preparedStatement);
+            System.out.println("adsDetailsDTOlist.size() = " + adsDetailsDTOlist.size());
             buttonPressCount.put(chatId, 0);
             productMap.put(chatId, adsDetailsDTOlist);
             SendMessage sendMessage = new SendMessage();
-
-            if (!adminList.contains(chatId) && !chatId.equals(CHANEL_ID)) {
-                sendMessage.setChatId(chatId);
+            sendMessage.setChatId(chatId);
+            if (adsDetailsDTOlist.size() == 0) {
+                sendMessage.setText("Sizning qidiruv natijalaringizga e'lon topilmadi qayta urinib koring 🙅‍");
+                MY_BOT.sendMsg(sendMessage);
+                userStatus.remove(chatId);
+                searchStatus.remove(chatId);
+            } else if (!adminList.contains(chatId) && !chatId.equals(CHANEL_ID)) {
                 sendMessage.setText("Sizning qidiruv natijalaringiz 📰 ");
                 MY_BOT.sendMsg(sendMessage);
+                printAdsWithOrder(chatId, 0);
+                searchStatus.put(chatId, State.SEARCHING_PROSSES);
+            } else {
+                printAdsWithOrder(chatId, 0);
             }
-            printAdsWithOrder(chatId, 0);
-            searchStatus.put(chatId, State.SEARCHING_PROSSES);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -957,14 +891,24 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
 
     public static void printAdsWithOrder(String chatId, Integer road) {
 
+        try {
+            Integer msgid = nextprevorder.get(chatId);
+            if (msgid != null) {
+                DeleteMessage deleteMessage = new DeleteMessage();
+                deleteMessage.setChatId(chatId);
+                deleteMessage.setMessageId(msgid);
+                MY_BOT.sendMsg(deleteMessage);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Integer order = buttonPressCount.get(chatId);
         int sum = order + road;
         AdsDetailsDTO dto = productMap.get(chatId).get(sum);
         buttonPressCount.put(chatId, sum);
-        List<SendPhoto> sendPhotoList = new ArrayList<>();
 
-//        for (int j = 0; j < adsDetailsDTOlist.size(); j++) {
-//            AdsDetailsDTO dto = adsDetailsDTOlist.get(j);
+
         String photoPath = dto.getOne();
         String str = "🏠 Bino turi:" + dto.getTwo() + "\n" +
                 "📲 Telefon: " + dto.getFour() + "\n" +
@@ -990,17 +934,16 @@ public class DbFunctionsImpl implements WorkWithDbFunctions {
         sendPhoto.setPhoto(new InputFile(photoPath));
         sendPhoto.setCaption("\n" + str);
 
-        EditMessageMedia emd=new EditMessageMedia();
+        EditMessageMedia emd = new EditMessageMedia();
         emd.setMedia(new InputMediaPhoto());
         if (adminList.contains(chatId)) {
             sendPhoto.setReplyMarkup(InlineKeyboardUtil.confirmAd(dto.getSixteen(), dto.getSeventeen()));  // todo admin yangi
-        } else {
+        } else if (!chatId.equals(CHANEL_ID)) {
             sendPhoto.setReplyMarkup(InlineKeyboardUtil.nextOrPrev());
         }
-        sendPhotoList.add(sendPhoto);
 
-        MY_BOT.sendMsg(sendPhotoList.get(0));
-//    }
+        Message message = MY_BOT.sendMsg(sendPhoto);
+        nextprevorder.put(chatId, message.getMessageId());
 
     }
 

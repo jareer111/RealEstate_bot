@@ -617,18 +617,18 @@ public class UserController {
             DbFunctionsImpl.getSearchByPrice(searchPrice, chatId);
             searchPriceMap.remove(chatId);
         } else if (state.equals(State.S_DATE)) {
-                if (data.equals(InlineButtonConstants.NEXT_AD_CALL_BACK)) {
-                    DbFunctionsImpl.printAdsWithOrder(chatId, 1);
-                } else if (data.equals(InlineButtonConstants.PREV_AD_CALL_BACK)) {
-                    DbFunctionsImpl.printAdsWithOrder(chatId, -1);
-                }
-            else {
-            deleteMessage.setChatId(chatId);
-            deleteMessage.setMessageId(message.getMessageId());
-            MY_BOT.sendMsg(deleteMessage);
-            DbFunctionsImpl.searchAdsByDate(data, chatId);
-            userStatus.remove(chatId);
-        } }else if (state.equals(State.CONFIRMATION_STATE)) {
+            if (data.equals(InlineButtonConstants.NEXT_AD_CALL_BACK)) {
+                DbFunctionsImpl.printAdsWithOrder(chatId, 1);
+            } else if (data.equals(InlineButtonConstants.PREV_AD_CALL_BACK)) {
+                DbFunctionsImpl.printAdsWithOrder(chatId, -1);
+            } else {
+                deleteMessage.setChatId(chatId);
+                deleteMessage.setMessageId(message.getMessageId());
+                MY_BOT.sendMsg(deleteMessage);
+                DbFunctionsImpl.searchAdsByDate(data, chatId);
+                userStatus.remove(chatId);
+            }
+        } else if (state.equals(State.CONFIRMATION_STATE)) {
             deleteMessage.setChatId(chatId);
             deleteMessage.setMessageId(message.getMessageId());
             MY_BOT.sendMsg(deleteMessage);
@@ -649,6 +649,10 @@ public class UserController {
         } else {
             sendMessage.setText("Notug'ri amal tanlandi qayta urinib kuring ♻️");
             MY_BOT.sendMsg(sendMessage);
+//            DeleteMessage deleteMessage1 = new DeleteMessage();
+//            deleteMessage1.setMessageId(message.getMessageId());
+//            deleteMessage1.setChatId(chatId);
+//            MY_BOT.sendMsg(deleteMessage1);
         }
 
     }

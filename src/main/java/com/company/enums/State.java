@@ -1,7 +1,5 @@
 package com.company.enums;
 
-import com.company.entity.SearchHelper;
-
 public enum State {
     GET_TITLE,
     GET_PHONE_NUMBER,
